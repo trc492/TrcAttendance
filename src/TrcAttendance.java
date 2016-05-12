@@ -38,6 +38,8 @@ public class TrcAttendance extends JComponent implements WindowListener
     public static String logFileName = null;
     public static String placeName = "";
 
+    private JFileChooser fileChooser = new JFileChooser();
+
     public JFrame frame;
 
     public Font defaultFont;
@@ -112,6 +114,10 @@ public class TrcAttendance extends JComponent implements WindowListener
         mediumFont = defaultFont.deriveFont(Font.PLAIN, defaultSize*2.0f);
         bigFont = defaultFont.deriveFont(Font.PLAIN, defaultSize*4.0f);
 
+        fileChooser.setFileFilter(new FileNameExtensionFilter(
+                "Spreadsheet text data file (*.csv)", "csv"));
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+
         menuBar = new MenuBar(this);
         meetingPane = new MeetingPane(this);
         attendancePane = new AttendancePane(this);
@@ -130,14 +136,12 @@ public class TrcAttendance extends JComponent implements WindowListener
         //
         // File->New is clicked, use the FileChooser to prompt for a new file.
         //
-        JFileChooser fc = new JFileChooser();
-        fc.setFileFilter(new FileNameExtensionFilter(
-                "Spreadsheet text data file (*.csv)", "csv"));
-        int returnVal = fc.showOpenDialog(this);
+        fileChooser.setSelectedFile(new File(""));
+        int returnVal = fileChooser.showOpenDialog(this);
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
-            File file = fc.getSelectedFile();
+            File file = fileChooser.getSelectedFile();
             if (file.exists() && !file.isDirectory())
             {
                 returnVal = JOptionPane.showConfirmDialog(
@@ -174,17 +178,15 @@ public class TrcAttendance extends JComponent implements WindowListener
         //
         // File->Open is clicked, use the FileChooser to prompt for a file.
         //
-        JFileChooser fc = new JFileChooser();
-        fc.setFileFilter(new FileNameExtensionFilter(
-                "Spreadsheet text data file (*.csv)", "csv"));
-        int returnVal = fc.showOpenDialog(this);
+        fileChooser.setSelectedFile(new File(""));
+        int returnVal = fileChooser.showOpenDialog(this);
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
             //
             // The user clicked "open" approving the file choice.
             //
-            openLogFile(fc.getSelectedFile());
+            openLogFile(fileChooser.getSelectedFile());
         }
     }   //onFileOpen
 

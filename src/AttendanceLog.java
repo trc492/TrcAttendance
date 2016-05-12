@@ -110,7 +110,6 @@ public class AttendanceLog
     public void updateAttendants(String[] attendants)
     {
         ArrayList<Attendant> newList = new ArrayList<Attendant>();
-        int oldNumAttendants = attendantsList.size();
         int numTransfers = 0;
 
         for (int i = 0; i < attendants.length; i++)
@@ -138,7 +137,7 @@ public class AttendanceLog
             }
         }
 
-        if (!fileDirty && oldNumAttendants != numTransfers)
+        if (!fileDirty && numTransfers != attendantsList.size())
         {
             fileDirty = true;
         }
