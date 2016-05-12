@@ -70,6 +70,7 @@ public class EditorDialog extends JDialog implements ActionListener
         {
             int numAttendants = log.getNumAttendants();
 
+            textArea.setText("");
             for (int i = 0; i < numAttendants; i++)
             {
                 Attendant attendant = log.getAttendant(i);
@@ -93,7 +94,6 @@ public class EditorDialog extends JDialog implements ActionListener
             parent.attendanceLog.updateAttendants(attendants);
             parent.attendancePane.updateCheckInList(parent.attendanceLog);
         }
-        textArea.setText("");
         setVisible(false);
     }   //close
 
