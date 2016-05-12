@@ -30,7 +30,7 @@ public class AttendancePane implements ActionListener
     private TrcAttendance parent;
     private JPanel panel = new JPanel();
 
-    private JButton checkInButton = new JButton(" Check in  ");
+    private JButton checkInButton = new JButton(" Check in ");
     private JComboBox<Attendant> checkInList = new JComboBox<Attendant>();
     private JButton checkOutButton = new JButton("Check out");
     private JComboBox<Attendant> checkOutList = new JComboBox<Attendant>();
