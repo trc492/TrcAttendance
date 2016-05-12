@@ -78,7 +78,7 @@ public class EditorDialog extends JDialog implements ActionListener
 
             Point parentLocation = parent.frame.getLocationOnScreen();
             setSize(textPane.getPreferredSize().width + 30,
-                    textPane.getPreferredSize().height + buttonPane.getSize().height + 60);
+                    textPane.getPreferredSize().height + buttonPane.getSize().height + 100);
             setLocation(parentLocation.x + 30, parentLocation.y + 30);
             setVisible(true);
         }

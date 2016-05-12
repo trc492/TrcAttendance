@@ -64,7 +64,7 @@ public class TrcAttendance extends JComponent implements WindowListener
                         JFrame frame = new JFrame(programTitle);
                         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
-                        frame.setSize(800, 480);
+                        frame.setSize(800, 500);
                         frame.setResizable(false);
                         frame.add(new TrcAttendance(frame));
                         frame.setLocationRelativeTo(null);
