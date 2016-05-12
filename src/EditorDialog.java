@@ -32,7 +32,8 @@ public class EditorDialog extends JDialog implements ActionListener
     private TrcAttendance parent;
     private JPanel textPane = new JPanel();
     private JPanel buttonPane = new JPanel();
-    private JTextArea textArea = new JTextArea(20, 30);
+    private JTextArea textArea = new JTextArea(20, 36);
+    private JLabel instructionsText = new JLabel("Enter new attendant names, one per line.");
     private JButton saveButton = new JButton("Save");
     private JButton cancelButton = new JButton("Cancel");
 
@@ -42,6 +43,7 @@ public class EditorDialog extends JDialog implements ActionListener
         this.parent = parent;
         textArea.setEditable(true);
         textArea.setFont(parent.smallFont);
+        instructionsText.setFont(parent.smallFont);
         saveButton.setFont(parent.smallFont);
         cancelButton.setFont(parent.smallFont);
         saveButton.addActionListener(this);
@@ -56,6 +58,7 @@ public class EditorDialog extends JDialog implements ActionListener
         contentPane.add(textPane);
         contentPane.add(buttonPane);
         textPane.add(scrollPane);
+        buttonPane.add(instructionsText);
         buttonPane.add(saveButton);
         buttonPane.add(cancelButton);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
