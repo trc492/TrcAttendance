@@ -84,11 +84,9 @@ public class MenuBar implements ActionListener
     public void setMenuItemsEnabled(
             boolean newEnabled, boolean openEnabled, boolean editEnabled, boolean closeEnabled)
     {
-//        fileNewItem.setEnabled(newEnabled);
-      fileNewItem.setEnabled(false);
+        fileNewItem.setEnabled(newEnabled);
         fileOpenItem.setEnabled(openEnabled);
-//        fileEditItem.setEnabled(editEnabled);
-      fileEditItem.setEnabled(false);
+        fileEditItem.setEnabled(editEnabled);
         fileCloseItem.setEnabled(closeEnabled);
     }   //setMenuItemsEnabled
 

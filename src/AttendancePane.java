@@ -92,10 +92,16 @@ public class AttendancePane implements ActionListener
         checkOutButton.setEnabled(enabled);
     }   //setEnabled
 
-    public void addToCheckInList(Attendant attendant)
+    public void updateCheckInList(AttendanceLog log)
     {
-        checkInList.addItem(attendant);
-    }   //addToCheckInList
+        checkInList.removeAllItems();
+
+        int numAttendants = log.getNumAttendants();
+        for (int i = 0; i < numAttendants; i++)
+        {
+            checkInList.addItem(log.getAttendant(i));
+        }
+    }   //updateCheckInList
 
     public void checkOutAll()
     {
@@ -107,18 +113,24 @@ public class AttendancePane implements ActionListener
 
     private void checkInAttendant(Attendant attendant)
     {
-        attendant.checkIn();
-        checkInList.removeItem(attendant);
-        checkOutList.addItem(attendant);
-        parent.attendanceLog.setFileDirty();
+        if (attendant != null)
+        {
+            attendant.checkIn();
+            checkInList.removeItem(attendant);
+            checkOutList.addItem(attendant);
+            parent.attendanceLog.setFileDirty();
+        }
     }   //checkInAttendant
 
     private void checkOutAttendant(Attendant attendant)
     {
-        attendant.checkOut();
-        checkOutList.removeItem(attendant);
-        checkInList.addItem(attendant);
-        parent.attendanceLog.setFileDirty();
+        if (attendant != null)
+        {
+            attendant.checkOut();
+            checkOutList.removeItem(attendant);
+            checkInList.addItem(attendant);
+            parent.attendanceLog.setFileDirty();
+        }
     }   //checkOutAttendant
 
     //

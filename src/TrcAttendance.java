@@ -31,8 +31,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class TrcAttendance extends JComponent implements WindowListener
 {
     private static final long serialVersionUID = 1L;
-    private static final String programTitle = "TrcAttendance";
-    private static final String programName = "Trc Attendance Logger";
+    private static final String programTitle = "Trc Attendance Logger";
     private static final String copyRight = "Copyright (c) Titan Robotics Club";
     private static final String programVersion = "v0.9.0";
 
@@ -49,6 +48,7 @@ public class TrcAttendance extends JComponent implements WindowListener
     public MenuBar menuBar;
     public MeetingPane meetingPane;
     public AttendancePane attendancePane;
+    public EditorDialog editorDialog;
 
     public AttendanceLog attendanceLog = null;
 
@@ -61,7 +61,7 @@ public class TrcAttendance extends JComponent implements WindowListener
                     @Override
                     public void run()
                     {
-                        JFrame frame = new JFrame(programName);
+                        JFrame frame = new JFrame(programTitle);
                         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
                         frame.setSize(800, 480);
@@ -115,6 +115,7 @@ public class TrcAttendance extends JComponent implements WindowListener
         menuBar = new MenuBar(this);
         meetingPane = new MeetingPane(this);
         attendancePane = new AttendancePane(this);
+        editorDialog = new EditorDialog(this, "Edit Attendants List - " + programTitle, true);
 
         if (logFileName != null)
         {
@@ -126,7 +127,46 @@ public class TrcAttendance extends JComponent implements WindowListener
 
     public void onFileNew()
     {
-        //TODO:
+        //
+        // File->New is clicked, use the FileChooser to prompt for a new file.
+        //
+        JFileChooser fc = new JFileChooser();
+        fc.setFileFilter(new FileNameExtensionFilter(
+                "Spreadsheet text data file (*.csv)", "csv"));
+        int returnVal = fc.showOpenDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            File file = fc.getSelectedFile();
+            if (file.exists() && !file.isDirectory())
+            {
+                returnVal = JOptionPane.showConfirmDialog(
+                        this,
+                        file.getPath() + " already exists, overwrite?",
+                        programTitle,
+                        JOptionPane.OK_CANCEL_OPTION);
+            }
+
+            if (returnVal == JOptionPane.OK_OPTION)
+            {
+                try
+                {
+                    attendanceLog = new AttendanceLog(file, true);
+                    frame.setTitle(file.getName() + " - " + programTitle);
+                    onFileEdit();
+                    meetingPane.setDefaultDateTimePlace();
+                    menuBar.setMenuItemsEnabled(false, false, true, true);
+                    meetingPane.setEnabled(true);
+                }
+                catch (Exception e)
+                {
+                    //
+                    // Should never come here.
+                    //
+                    throw new RuntimeException(e.getMessage());
+                }
+            }
+        }
     }   //onFileNew
 
     public void onFileOpen()
@@ -150,7 +190,7 @@ public class TrcAttendance extends JComponent implements WindowListener
 
     public void onFileEdit()
     {
-        //TODO:
+        editorDialog.open(attendanceLog);
     }   //onFileEdit
 
     public void onFileClose()
@@ -164,7 +204,7 @@ public class TrcAttendance extends JComponent implements WindowListener
             attendancePane.clearPanel();
             menuBar.setMenuItemsEnabled(true, true, false, false);
             attendanceLog = null;
-            frame.setTitle(programName);
+            frame.setTitle(programTitle);
         }
     }   //onFileClose
 
@@ -174,9 +214,9 @@ public class TrcAttendance extends JComponent implements WindowListener
         // File->About is clicked, display the About message.
         //
         String msg =
-                programName + " " + programVersion + "\n" + copyRight + "\n";
+                programTitle + " " + programVersion + "\n" + copyRight + "\n";
         JOptionPane.showMessageDialog(
-                null, msg, programTitle, JOptionPane.INFORMATION_MESSAGE);
+                this, msg, programTitle, JOptionPane.INFORMATION_MESSAGE);
     }   //onFileAbout
 
     public void onFileExit()
@@ -203,13 +243,9 @@ public class TrcAttendance extends JComponent implements WindowListener
     {
         try
         {
-            attendanceLog = new AttendanceLog(file);
-            int numAttendants = attendanceLog.getNumAttendants();
-            for (int i = 0; i < numAttendants; i++)
-            {
-                attendancePane.addToCheckInList(attendanceLog.getAttendant(i));
-            }
-            frame.setTitle(programName + " - " + file.getName());
+            attendanceLog = new AttendanceLog(file, false);
+            attendancePane.updateCheckInList(attendanceLog);
+            frame.setTitle(file.getName() + " - " + programTitle);
             meetingPane.setDefaultDateTimePlace();
             menuBar.setMenuItemsEnabled(false, false, true, true);
             meetingPane.setEnabled(true);
@@ -219,14 +255,14 @@ public class TrcAttendance extends JComponent implements WindowListener
             menuBar.setMenuItemsEnabled(true, true, false, false);
             String msg = String.format("%s does not exist.", file);
             JOptionPane.showMessageDialog(
-                    null, msg, programTitle, JOptionPane.ERROR_MESSAGE);
+                    this, msg, programTitle, JOptionPane.ERROR_MESSAGE);
         }
         catch (ParseException e)
         {
             menuBar.setMenuItemsEnabled(true, true, false, false);
             String msg = String.format("Invalid data format in %s.", file);
             JOptionPane.showMessageDialog(
-                    null, msg, programTitle, JOptionPane.ERROR_MESSAGE);
+                    this, msg, programTitle, JOptionPane.ERROR_MESSAGE);
         }
     }   //openLogFile
 
@@ -237,7 +273,7 @@ public class TrcAttendance extends JComponent implements WindowListener
         if (attendanceLog != null && attendanceLog.isFileDirty())
         {
             reply = JOptionPane.showConfirmDialog(
-                    null, "Do you want to save the data before exiting?", programTitle, option);
+                    this, "Do you want to save the data before exiting?", programTitle, option);
         }
 
         if (reply == JOptionPane.YES_OPTION && attendanceLog != null && attendanceLog.isFileDirty())

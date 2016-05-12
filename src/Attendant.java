@@ -79,7 +79,7 @@ public class Attendant
 
     public long getSessionMinutes(int index)
     {
-        return sessionTimes.get(index);
+        return index < sessionTimes.size()? sessionTimes.get(index): 0;
     }   //getSessionMinutes
 
     public void addSession(long minutes)
