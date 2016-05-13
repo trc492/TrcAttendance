@@ -38,14 +38,14 @@ public class TrcAttendance extends JComponent implements WindowListener
     public static String logFileName = null;
     public static String placeName = "";
 
-    private JFileChooser fileChooser = new JFileChooser();
-
     public JFrame frame;
 
     public Font defaultFont;
     public Font smallFont;
     public Font mediumFont;
     public Font bigFont;
+
+    private JFileChooser fileChooser = new JFileChooser();
 
     public MenuBar menuBar;
     public MeetingPane meetingPane;
@@ -142,6 +142,7 @@ public class TrcAttendance extends JComponent implements WindowListener
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
             File file = fileChooser.getSelectedFile();
+            returnVal = JOptionPane.OK_OPTION;
             if (file.exists() && !file.isDirectory())
             {
                 returnVal = JOptionPane.showConfirmDialog(
@@ -198,7 +199,7 @@ public class TrcAttendance extends JComponent implements WindowListener
     public void onFileClose()
     {
         //
-        // File->Close is clicked, save the file and close the program.
+        // File->Close is clicked, save and close the file.
         //
         if (saveLogFile(JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
         {
@@ -215,10 +216,11 @@ public class TrcAttendance extends JComponent implements WindowListener
         //
         // File->About is clicked, display the About message.
         //
-        String msg =
-                programTitle + " " + programVersion + "\n" + copyRight + "\n";
         JOptionPane.showMessageDialog(
-                this, msg, programTitle, JOptionPane.INFORMATION_MESSAGE);
+                this,
+                programTitle + " " + programVersion + "\n" + copyRight + "\n",
+                programTitle,
+                JOptionPane.INFORMATION_MESSAGE);
     }   //onFileAbout
 
     public void onFileExit()
@@ -235,6 +237,9 @@ public class TrcAttendance extends JComponent implements WindowListener
     public void onCreateMeeting(
             String date, String startTime, String endTime, String place, String meeting)
     {
+        //
+        // The "Create Meeting" button is clicked.
+        //
         attendanceLog.createSession(date, startTime, endTime, place, meeting);
         menuBar.setMenuItemsEnabled(false, false, false, true);
         meetingPane.setEnabled(false);
