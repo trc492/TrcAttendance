@@ -24,6 +24,10 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+/**
+ * This class constructs the menu bar of the program. The menu contains only one menu, the
+ * File menu.
+ */
 public class MenuBar implements ActionListener
 {
     private TrcAttendance parent;
@@ -36,6 +40,11 @@ public class MenuBar implements ActionListener
     private JMenuItem fileAboutItem = new JMenuItem("About");
     private JMenuItem fileExitItem = new JMenuItem("Exit");
 
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param parent specifies the parent object.
+     */
     public MenuBar(TrcAttendance parent)
     {
         this.parent = parent;
@@ -77,10 +86,21 @@ public class MenuBar implements ActionListener
         fileExitItem.addActionListener(this);
         fileMenu.add(fileExitItem);
 
+        //
+        // We start with New/Open enabled and Edit/Close disabled.
+        //
         setMenuItemsEnabled(true, true, false, false);
         parent.frame.setJMenuBar(menuBar);
-    }   //createMenuBar
+    }   //MenuBar
 
+    /**
+     * This method is called to enable/disable the major File menu items.
+     *
+     * @param newEnabled specifies true to enable File->New menu item, false otherwise.
+     * @param openEnabled specifies true to enable File->Open menu item, false otherwise.
+     * @param editEnabled specifies true to enable File->Edit menu item, false otherwise.
+     * @param closeEnabled specifies true to enable File->Close menu item, false otherwise.
+     */
     public void setMenuItemsEnabled(
             boolean newEnabled, boolean openEnabled, boolean editEnabled, boolean closeEnabled)
     {
@@ -94,32 +114,55 @@ public class MenuBar implements ActionListener
     // Implements ActionListener interface.
     //
 
+    /**
+     * This method is called when a File menu item is clicked.
+     *
+     * @param event specifies the event that caused this callback.
+     */
     public void actionPerformed(ActionEvent event)
     {
         Object source = event.getSource();
 
         if (source == fileNewItem)
         {
+            //
+            // File->New is clicked.
+            //
             parent.onFileNew();
         }
         else if (source == fileOpenItem)
         {
+            //
+            // File->Open is clicked.
+            //
             parent.onFileOpen();
         }
         else if (source == fileEditItem)
         {
+            //
+            // File->Edit is clicked.
+            //
             parent.onFileEdit();
         }
         else if (source == fileCloseItem)
         {
+            //
+            // File->Close is clicked.
+            //
             parent.onFileClose();
         }
         else if (source == fileAboutItem)
         {
+            //
+            // File->About is clicked.
+            //
             parent.onFileAbout();
         }
         else if (source == fileExitItem)
         {
+            //
+            // File->Exit is clicked.
+            //
             parent.onFileExit();
         }
     }   //actionPerformed

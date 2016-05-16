@@ -29,74 +29,85 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.*;
 
+/**
+ * This class constructs the Meeting pane. It contains the meeting info such as meeting type,
+ * meeting date, start time, end time and meeting place.
+ */
 public class MeetingPane implements ActionListener
 {
     private TrcAttendance parent;
     private JPanel panel = new JPanel();
 
+    //
+    // Meeting type.
+    //
     private JCheckBox mechanicalCheckBox = new JCheckBox("Mechanical", false);
     private JCheckBox programmingCheckBox = new JCheckBox("Programming", false);
     private JCheckBox driveCheckBox = new JCheckBox("Drive", false);
     private JCheckBox otherCheckBox = new JCheckBox("Other", false);
-    private JButton createMeetingButton = new JButton("Create Meeting");
 
+    //
+    // Meeting date.
+    //
     private JLabel dateLabel = new JLabel("Date");
     private JFormattedTextField date = new JFormattedTextField();
 //    private DatePicker datePicker = new DatePicker(LocalDate.now());
 
+    //
+    // Meeting start time.
+    //
     private SpinnerModel startHourModel = new SpinnerNumberModel(0, 0, 23, 1);
     private SpinnerModel startMinuteModel = new SpinnerNumberModel(0, 0, 59, 15);
-    private SpinnerModel endHourModel = new SpinnerNumberModel(0, 0, 23, 1);
-    private SpinnerModel endMinuteModel = new SpinnerNumberModel(0, 0, 59, 15);
-
     private JLabel startTimeLabel = new JLabel("Start Time");
     private JSpinner startTimeHour = new JSpinner(startHourModel);
     private JLabel startTimeColonLabel = new JLabel(":");
     private JSpinner startTimeMinute = new JSpinner(startMinuteModel);
 
+    //
+    // Meeting end time.
+    //
+    private SpinnerModel endHourModel = new SpinnerNumberModel(0, 0, 23, 1);
+    private SpinnerModel endMinuteModel = new SpinnerNumberModel(0, 0, 59, 15);
     private JLabel endTimeLabel = new JLabel("End Time");
     private JSpinner endTimeHour = new JSpinner(endHourModel);
     private JLabel endTimeColonLabel = new JLabel(":");
     private JSpinner endTimeMinute = new JSpinner(endMinuteModel);
 
+    //
+    // Meeting place.
+    //
     private JLabel placeLabel = new JLabel("Place");
     private JTextField place = new JTextField();
 
+    private JButton createMeetingButton = new JButton("Create Meeting");
+
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param parent specifies the parent object.
+     */
     public MeetingPane(TrcAttendance parent)
     {
         this.parent = parent;
 
+        //
+        // Initialize group panel.
+        //
         panel.setBorder(BorderFactory.createTitledBorder("Meeting"));
         ((TitledBorder)panel.getBorder()).setTitleFont(parent.smallFont);
+        //
+        // Initialize meeting type check boxes.
+        //
         mechanicalCheckBox.setFont(parent.mediumFont);
         programmingCheckBox.setFont(parent.mediumFont);
         driveCheckBox.setFont(parent.mediumFont);
         otherCheckBox.setFont(parent.mediumFont);
-        createMeetingButton.setFont(parent.smallFont);
-
+        //
+        // Initialize meeting date.
+        //
         dateLabel.setFont(parent.smallFont);
-        startTimeLabel.setFont(parent.smallFont);
-        endTimeLabel.setFont(parent.smallFont);
-        placeLabel.setFont(parent.smallFont);
-
-        date.setFont(parent.mediumFont);
-
-        getSpinnerTextField(startTimeHour).setFont(parent.mediumFont);
-        startTimeColonLabel.setFont(parent.mediumFont);
-        getSpinnerTextField(startTimeMinute).setFont(parent.mediumFont);
-        getSpinnerTextField(endTimeHour).setFont(parent.mediumFont);
-        endTimeColonLabel.setFont(parent.mediumFont);
-        getSpinnerTextField(endTimeMinute).setFont(parent.mediumFont);
-
-        place.setFont(parent.mediumFont);
-
         dateLabel.setLabelFor(date);
-        startTimeLabel.setLabelFor(startTimeHour);
-        startTimeColonLabel.setLabelFor(startTimeMinute);
-        endTimeLabel.setLabelFor(endTimeHour);
-        endTimeColonLabel.setLabelFor(endTimeMinute);
-        placeLabel.setLabelFor(place);
-
+        date.setFont(parent.mediumFont);
         try
         {
             MaskFormatter dateFormatter = new MaskFormatter("##/##/####");
@@ -111,7 +122,21 @@ public class MeetingPane implements ActionListener
             // Do nothing. If it failed, it just means we don't have nice format, no big deal.
             //
         }
-
+        //
+        // Initialize meeting start and end times.
+        //
+        startTimeLabel.setFont(parent.smallFont);
+        startTimeLabel.setLabelFor(startTimeHour);
+        startTimeColonLabel.setFont(parent.mediumFont);
+        startTimeColonLabel.setLabelFor(startTimeMinute);
+        getSpinnerTextField(startTimeHour).setFont(parent.mediumFont);
+        getSpinnerTextField(startTimeMinute).setFont(parent.mediumFont);
+        endTimeLabel.setFont(parent.smallFont);
+        endTimeLabel.setLabelFor(endTimeHour);
+        endTimeColonLabel.setFont(parent.mediumFont);
+        endTimeColonLabel.setLabelFor(endTimeMinute);
+        getSpinnerTextField(endTimeHour).setFont(parent.mediumFont);
+        getSpinnerTextField(endTimeMinute).setFont(parent.mediumFont);
         try
         {
             MaskFormatter timeFormatter = new MaskFormatter("##");
@@ -127,7 +152,20 @@ public class MeetingPane implements ActionListener
             // Do nothing. If it failed, it just means we don't have nice format, no big deal.
             //
         }
+        //
+        // Initialize meeting place.
+        //
+        placeLabel.setFont(parent.smallFont);
+        placeLabel.setLabelFor(place);
+        place.setFont(parent.mediumFont);
+        //
+        // Initialize Create Meeting button.
+        //
+        createMeetingButton.setFont(parent.smallFont);
 
+        //
+        // Initialize component layout.
+        //
         GroupLayout layout = new GroupLayout(panel);
         panel.setLayout(layout);
         layout.setAutoCreateGaps(true);;
@@ -184,6 +222,9 @@ public class MeetingPane implements ActionListener
         clearPanel();
     }   //MeetingPane
 
+    /**
+     * This method clears all fields in the Meeting pane and disables all controls.
+     */
     public void clearPanel()
     {
         mechanicalCheckBox.setSelected(false);
@@ -201,6 +242,11 @@ public class MeetingPane implements ActionListener
         setEnabled(false);
     }   //clearPanel
 
+    /**
+     * This method enables/disables all controls in the Meeting pane.
+     *
+     * @param enabled specifies true to enable all controls, false otherwise.
+     */
     public void setEnabled(boolean enabled)
     {
         panel.setEnabled(enabled);
@@ -223,6 +269,12 @@ public class MeetingPane implements ActionListener
         createMeetingButton.setEnabled(enabled);
     }   //setEnabled
 
+    /**
+     * This method auto fills in the meeting date/time/place with default values. Default date
+     * is TODAY. Default start time is the current time rounded to the nearest half hour. Default
+     * end time is 2 hours from the start time. Default place is the place specified in the
+     * command line parameter if one is provided. It's null otherwise.
+     */
     public void setDefaultDateTimePlace()
     {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -253,6 +305,12 @@ public class MeetingPane implements ActionListener
         place.setText(TrcAttendance.placeName);
     }   //setDefaultDateTimePlace
 
+    /**
+     * This method returns the TextField object of the Spinner control.
+     *
+     * @param spinner specifies the Spinner control for retrieving its TextField object.
+     * @return TextField object of the Spinner control.
+     */
     private JFormattedTextField getSpinnerTextField(JSpinner spinner)
     {
         JComponent editor = spinner.getEditor();
@@ -270,6 +328,11 @@ public class MeetingPane implements ActionListener
     // Implements ActionListener interface.
     //
 
+    /**
+     * This method is called when a Meeting pane control is clicked.
+     *
+     * @param event specifies the event that caused this callback.
+     */
     public void actionPerformed(ActionEvent event)
     {
         Object source = event.getSource();
@@ -280,6 +343,9 @@ public class MeetingPane implements ActionListener
 
             if (mechanicalCheckBox.isSelected()) meeting += "Mechanical";
 
+            //
+            // Construct the meeting type string.
+            //
             if (programmingCheckBox.isSelected())
             {
                 if (meeting.length() > 0) meeting += "/";
@@ -300,6 +366,9 @@ public class MeetingPane implements ActionListener
 
             if (meeting.length() == 0) meeting += "Other";
 
+            //
+            // Construct the start time and end time strings.
+            //
             String startTime = String.format("%02d:%02d",
                     getSpinnerTextField(startTimeHour).getValue(),
                     getSpinnerTextField(startTimeMinute).getValue());
@@ -307,6 +376,9 @@ public class MeetingPane implements ActionListener
                     getSpinnerTextField(endTimeHour).getValue(),
                     getSpinnerTextField(endTimeMinute).getValue());
 
+            //
+            // Create the new meeting session.
+            //
             parent.onCreateMeeting(date.getText(), startTime, endTime, place.getText(), meeting);
         }
     }   //actionPerformed

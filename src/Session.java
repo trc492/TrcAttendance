@@ -20,26 +20,56 @@
  * SOFTWARE.
  */
 
+/**
+ * This class implements a meeting session. A meeting session contains 5 pieces of information:
+ * meeting date, meeting start time, meeting end time, meeting place and the type of meeting.
+ */
 public class Session
 {
-    private String date;
-    private String startTime;
-    private String endTime;
-    private String place;
-    private String meeting;
+    public static final String[] header = {"Date", "Start Time", "End Time", "Place", "Meeting"};
+    private String[] sessionInfo = new String[header.length];
 
-    public Session(String date, String startTime, String endTime, String place, String meeting)
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param info specifies the meeting info fields.
+     */
+    public Session(String[] info)
     {
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.place = place;
-        this.meeting = meeting;
+        //
+        // Store the meeting info.
+        //
+        for (int i = 0; i < header.length; i++)
+        {
+            sessionInfo[i] = info[i];
+        }
     }   //Meeting
 
+    /**
+     * This method is called to get a string representation of the meeting info. It concatenates
+     * all the info separated by commas. This is primarily used for formatting the meeting info
+     * in the CSV log file.
+     */
     public String toString()
     {
-        return date + "," + startTime + "," + endTime + "," + place + "," + meeting;
+        String info = sessionInfo[0];
+        for (int i = 1; i < header.length; i++)
+        {
+            info += "," + sessionInfo[i];
+        }
+
+        return info;
     }   //toString
+
+    public static String getHeaderString()
+    {
+        String headerString = header[0];
+        for (int i = 1; i < header.length; i++)
+        {
+            headerString += "," + header[i];
+        }
+
+        return headerString;
+    }   //getHeaderString
 
 }   //class Meeting

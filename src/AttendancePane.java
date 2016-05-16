@@ -21,36 +21,114 @@
  */
 
 import java.awt.event.*;
+import java.util.Comparator;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
+/**
+ * This class constructs the Attendance pane. It contains a check-in list and a check-out list.
+ * When the log file is first opened, all attendants are put into the check-in list. When an
+ * attendant checks in, he/she will be moved to the check-out list. When the attendant checks
+ * out, the attendance time is recorded and the attendant will be moved back to the check-in
+ * list.
+ */
 public class AttendancePane implements ActionListener
 {
+    /**
+     * This class implements the SortedComboBoxModel that allows the elements in a ComboBox to
+     * be added in sorted order.
+     */
+    private class SortedComboBoxModel<E> extends DefaultComboBoxModel<E>
+    {
+        private static final long serialVersionUID = 1L;
+        private Comparator<E> comparator;
+
+        /**
+         * Constructor: Create an instance of the object.
+         *
+         * @param comparator specifies the custom comparator.
+         */
+        public SortedComboBoxModel(Comparator<E> comparator)
+        {
+            super();
+            this.comparator = comparator;
+        }   //SortedComboBoxModel
+
+        /**
+         * This method inserts the specified element into the ComboBox at the sorted position.
+         *
+         * @param element specifies the element to be inserted into the ComboBox.
+         */
+        @Override
+        public void addElement(E element)
+        {
+            int size = getSize();
+            int pos;
+            //
+            // Find the appropriate position to insert the element.
+            //
+            for (pos = 0; pos < size; pos++)
+            {
+                E e = getElementAt(pos);
+                if (comparator.compare(element, e) < 0)
+                {
+                    break;
+                }
+            }
+            super.insertElementAt(element, pos);
+        }   //addElement
+
+    }   //class SortedComboBoxModel
+
     private TrcAttendance parent;
     private JPanel panel = new JPanel();
-
+    //
+    // Check-in controls.
+    //
     private JButton checkInButton = new JButton(" Check in ");
-    private JComboBox<Attendant> checkInList = new JComboBox<Attendant>();
+    private SortedComboBoxModel<Attendant> checkInListModel =
+                new SortedComboBoxModel<Attendant>(new Attendant.NameComparator());
+    private JComboBox<Attendant> checkInList = new JComboBox<Attendant>(checkInListModel);
+    //
+    // Check-out controls.
+    //
     private JButton checkOutButton = new JButton("Check out");
-    private JComboBox<Attendant> checkOutList = new JComboBox<Attendant>();
+    private SortedComboBoxModel<Attendant> checkOutListModel =
+                new SortedComboBoxModel<Attendant>(new Attendant.NameComparator());
+    private JComboBox<Attendant> checkOutList = new JComboBox<Attendant>(checkOutListModel);
 
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param parent specifies the parent object.
+     */
     public AttendancePane(TrcAttendance parent)
     {
         this.parent = parent;
-
+        //
+        // Initialize group panel.
+        //
         panel.setBorder(BorderFactory.createTitledBorder("Attendance"));
         ((TitledBorder)panel.getBorder()).setTitleFont(parent.smallFont);
+        //
+        // Initialize check-in controls.
+        //
         checkInButton.setFont(parent.smallFont);
-        checkOutButton.setFont(parent.smallFont);
-        checkInList.setFont(parent.bigFont);
-        checkOutList.setFont(parent.bigFont);
-
         checkInButton.addActionListener(this);
+        checkInList.setFont(parent.bigFont);
         checkInList.setEditable(false);
+        //
+        // Initialize check-out controls.
+        //
+        checkOutButton.setFont(parent.smallFont);
         checkOutButton.addActionListener(this);
+        checkOutList.setFont(parent.bigFont);
         checkOutList.setEditable(false);
 
+        //
+        // Initialize component layout.
+        //
         GroupLayout layout = new GroupLayout(panel);
         panel.setLayout(layout);
         layout.setAutoCreateGaps(true);;
@@ -76,6 +154,9 @@ public class AttendancePane implements ActionListener
         clearPanel();
     }   //AttendancePane
 
+    /**
+     * This method clears the check-in and check-out lists. It also disables all controls.
+     */
     public void clearPanel()
     {
         checkInList.removeAllItems();
@@ -83,6 +164,11 @@ public class AttendancePane implements ActionListener
         setEnabled(false);
     }   //clearPanel
 
+    /**
+     * This method enables/disables all controls in the Attendance pane.
+     *
+     * @param enabled specifies true to enable all controls, false otherwise.
+     */
     public void setEnabled(boolean enabled)
     {
         panel.setEnabled(enabled);
@@ -92,17 +178,74 @@ public class AttendancePane implements ActionListener
         checkOutButton.setEnabled(enabled);
     }   //setEnabled
 
-    public void updateCheckInList(AttendanceLog log)
+    /**
+     * This method clears the check-in and check-out lists.
+     */
+    public void clearLists()
     {
         checkInList.removeAllItems();
+        checkOutList.removeAllItems();
+    }   //clearLists
 
+    /**
+     * This method updates the check-in and check-out lists according to the attendants in the
+     * AttendanceLog.
+     *
+     * @param log specifies the AttendanceLog object.
+     */
+    public void updateLists(AttendanceLog log)
+    {
         int numAttendants = log.getNumAttendants();
+
         for (int i = 0; i < numAttendants; i++)
         {
-            checkInList.addItem(log.getAttendant(i));
+            Attendant attendant = log.getAttendant(i);
+            if (checkInListModel.getIndexOf(attendant) == -1 &&
+                checkOutListModel.getIndexOf(attendant) == -1)
+            {
+                //
+                // Add new attendant.
+                //
+                checkInList.addItem(attendant);
+            }
         }
-    }   //updateCheckInList
 
+        for (int i = checkInList.getItemCount() - 1; i >= 0; i--)
+        {
+            if (!parent.attendanceLog.contains(checkInList.getItemAt(i)))
+            {
+                //
+                // The attendant has been removed, get rid of it from the check-in list.
+                //
+                checkInList.removeItemAt(i);
+            }
+        }
+
+        for (int i = checkOutList.getItemCount() - 1; i >= 0; i--)
+        {
+            if (!parent.attendanceLog.contains(checkOutList.getItemAt(i)))
+            {
+                //
+                // The attendant has been removed, get rid of it from the check-out list.
+                //
+                checkOutList.removeItemAt(i);
+            }
+        }
+
+        if (checkInList.getItemCount() > 0)
+        {
+            checkInList.setSelectedIndex(0);
+        }
+
+        if (checkOutList.getItemCount() > 0)
+        {
+            checkOutList.setSelectedIndex(0);
+        }
+    }   //updateLists
+
+    /**
+     * This method checks out all the attendants from the check-out list.
+     */
     public void checkOutAll()
     {
         while (checkOutList.getItemCount() > 0)
@@ -111,6 +254,12 @@ public class AttendancePane implements ActionListener
         }
     }   //checkOutAll
 
+    /**
+     * This method checks in the selected attendant by moving the attendant from the check-in
+     * list to the check-in list and mark the log file as dirty.
+     *
+     * @param attendant
+     */
     private void checkInAttendant(Attendant attendant)
     {
         if (attendant != null)
@@ -122,6 +271,12 @@ public class AttendancePane implements ActionListener
         }
     }   //checkInAttendant
 
+    /**
+     * This method checks out the selected attendant by moving the attendant from the check-out
+     * list back to the check-in list and mark the log file as dirty.
+     *
+     * @param attendant
+     */
     private void checkOutAttendant(Attendant attendant)
     {
         if (attendant != null)
@@ -137,6 +292,11 @@ public class AttendancePane implements ActionListener
     // Implements ActionListener interface.
     //
 
+    /**
+     * This method is called when a Attendance pane control is clicked.
+     *
+     * @param event specifies the event that caused this callback.
+     */
     public void actionPerformed(ActionEvent event)
     {
         Object source = event.getSource();

@@ -28,32 +28,61 @@ import java.text.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+/**
+ * This is the main class of the Attendance Logger program. It contains the main method.
+ * To minimize the amount of typing required when starting a meeting session with the program,
+ * it is recommended to compile this program to a jar file and put in into the same folder
+ * where the log data files are stored. On the Windows desktop, it is recommended to create
+ * a shortcut that contains the following line in the "Target:" field:
+ *  java -jar TrcAttendance.jar log=<LogFileName> place=<MeetingPlace>
+ *  where:
+ *  <LogFileName>   - The file name of the log data (e.g. Frc2016Attendance.csv). The log data
+ *                    is in the format of an Excel CSV (text file with fields separated by
+ *                    commas).
+ *  <MeetingPlace>  - Specifies the default meeting place. 
+ *
+ * The parameters are optional. By specifying them, the program will start with the correct
+ * log file opened and the meeting place filled in.
+ * In the "Start in:" field of the shortcut, put in the location of the folder where the jar
+ * file and the log data are stored.
+ * In the "Run:" field of the shortcut, select "Minimized". This will cause the command console
+ * associated with the java program to be minimized.
+ *
+ * With the above recommendation, you can create multiple shortcuts on the desktop. For example,
+ * we have both an FRC and FTC teams. We created two shortcuts "Frc2016Attendance" and
+ * "Ftc2016Attendance" each has different parameters specifying a different log file and meeting
+ * place.
+ */
 public class TrcAttendance extends JComponent implements WindowListener
 {
     private static final long serialVersionUID = 1L;
     private static final String programTitle = "Trc Attendance Logger";
     private static final String copyRight = "Copyright (c) Titan Robotics Club";
-    private static final String programVersion = "v0.9.0";
+    private static final String programVersion = "[version 0.9.0]";
 
     public static String logFileName = null;
     public static String placeName = "";
 
     public JFrame frame;
 
-    public Font defaultFont;
     public Font smallFont;
     public Font mediumFont;
     public Font bigFont;
-
-    private JFileChooser fileChooser = new JFileChooser();
 
     public MenuBar menuBar;
     public MeetingPane meetingPane;
     public AttendancePane attendancePane;
     public EditorDialog editorDialog;
-
     public AttendanceLog attendanceLog = null;
 
+    private JFileChooser fileChooser = new JFileChooser();
+
+    /**
+     * This is the entry point of the program. It created the main window of the program,
+     * set the proper size and location and initialized all the UI elements.
+     *
+     * @param args specifies the command line parameters.
+     */
     public static void main(String[] args)
     {
         parseArgs(args);
@@ -75,6 +104,19 @@ public class TrcAttendance extends JComponent implements WindowListener
                 });
     }   //main
 
+    /**
+     * This method parses the command line parameters. The parameters are optional. If they
+     * exist, it will initialize the corresponding variables. Each parameter is in the format
+     * of <parameter>=<argument>. At this time, the supported parameters are:
+     *  log=<LogFileName>
+     *  place=<MeetingPlace>
+     *  where:
+     *  <LogFileName>   - specifies the name of the log file. It can be a full path if the
+     *                    log file is not in the same current folder of the program.
+     *  <MeetingPlace>  - specifies the default meeting place.
+     *
+     * @param args specifies the command line parameters.
+     */
     private static void parseArgs(String[] args)
     {
         for (int i = 0; i < args.length; i++)
@@ -82,7 +124,7 @@ public class TrcAttendance extends JComponent implements WindowListener
             String[] fields = args[i].trim().split("=");
             if (fields.length == 2)
             {
-                if (fields[0].equalsIgnoreCase("file"))
+                if (fields[0].equalsIgnoreCase("log"))
                 {
                     logFileName = fields[1];
                 }
@@ -104,25 +146,44 @@ public class TrcAttendance extends JComponent implements WindowListener
         }
     }   //parseArgs
 
+    /**
+     * Constructor: Create an instance of the object.
+     * Note that the constructor is private so that the class cannot be instantiated by anybody
+     * other than the main method.
+     *
+     * @param frame specifies the main window of the program.
+     */
     private TrcAttendance(JFrame frame)
     {
         this.frame = frame;
 
-        defaultFont = UIManager.getDefaults().getFont("TabbedPane.font");
+        Font defaultFont = UIManager.getDefaults().getFont("TabbedPane.font");
         int defaultSize = defaultFont.getSize();
+        //
+        // To make the program "touch friendly", make the fonts bigger.
+        //
         smallFont = defaultFont.deriveFont(Font.PLAIN, defaultSize*1.5f);
         mediumFont = defaultFont.deriveFont(Font.PLAIN, defaultSize*2.0f);
         bigFont = defaultFont.deriveFont(Font.PLAIN, defaultSize*4.0f);
 
-        fileChooser.setFileFilter(new FileNameExtensionFilter(
-                "Spreadsheet text data file (*.csv)", "csv"));
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
-
+        //
+        // Create and initialize all the UI elements.
+        //
         menuBar = new MenuBar(this);
         meetingPane = new MeetingPane(this);
         attendancePane = new AttendancePane(this);
         editorDialog = new EditorDialog(this, "Edit Attendants List - " + programTitle, true);
 
+        //
+        // Create and initialize a global FileChooser object for "New" and "Open".
+        //
+        fileChooser.setFileFilter(new FileNameExtensionFilter(
+                "Spreadsheet text data file (*.csv)", "csv"));
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+
+        //
+        // If a log file is specified as a command parameter, open it.
+        //
         if (logFileName != null)
         {
             openLogFile(new File(logFileName));
@@ -131,16 +192,25 @@ public class TrcAttendance extends JComponent implements WindowListener
         frame.addWindowListener(this);
     }   //TrcAttendance
 
+    /**
+     * This method is called when the File->New menu item is clicked. It will pop up the
+     * FileChooser dialog allowing the user to select the folder and to specify the new
+     * log file name.
+     */
     public void onFileNew()
     {
         //
-        // File->New is clicked, use the FileChooser to prompt for a new file.
+        // Clear the selectedFile field from the previous session.
         //
         fileChooser.setSelectedFile(new File(""));
         int returnVal = fileChooser.showOpenDialog(this);
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
+            //
+            // Check if the user selected an existing log file. If so, prompt the user
+            // for permission to overwrite it.
+            //
             File file = fileChooser.getSelectedFile();
             returnVal = JOptionPane.OK_OPTION;
             if (file.exists() && !file.isDirectory())
@@ -154,31 +224,57 @@ public class TrcAttendance extends JComponent implements WindowListener
 
             if (returnVal == JOptionPane.OK_OPTION)
             {
+                //
+                // Create the new log file, open the editor dialog allowing the user to
+                // enter the names of the new attendants and update the program state.
+                //
                 try
                 {
+                    //
+                    // Create the new log file.
+                    //
                     attendanceLog = new AttendanceLog(file, true);
-                    frame.setTitle(file.getName() + " - " + programTitle);
-                    onFileEdit();
-                    meetingPane.setDefaultDateTimePlace();
-                    menuBar.setMenuItemsEnabled(false, false, true, true);
-                    meetingPane.setEnabled(true);
                 }
                 catch (Exception e)
                 {
                     //
                     // Should never come here.
+                    // The AttendanceLog may throw a few exceptions when parsing an existing
+                    // log file but since we are creating a new log file, we should never get
+                    // any exceptions. In case we do for whatever reason, we throw a
+                    // RuntimeException as an internal error.
                     //
                     throw new RuntimeException(e.getMessage());
                 }
+                //
+                // Update the Window title showing the new log file.
+                //
+                frame.setTitle(file.getName() + " - " + programTitle);
+                //
+                // Open the Editor dialog as if the user has clicked File->Edit allowing
+                // the user to enter the names of the new attendants.
+                //
+                onFileEdit();
+                //
+                // Auto fill-in the default meeting date/time/place.
+                //
+                meetingPane.setDefaultDateTimePlace();
+                //
+                // Update the program state by disabling New/Open and enabling Edit/Close
+                // and the meeting pane.
+                //
+                menuBar.setMenuItemsEnabled(false, false, true, true);
+                meetingPane.setEnabled(true);
             }
         }
     }   //onFileNew
 
+    /**
+     * This method is called when the File->Open menu item is clicked. It will pop up the
+     * FileChooser dialog allowing the user to select the folder and log file to open.
+     */
     public void onFileOpen()
     {
-        //
-        // File->Open is clicked, use the FileChooser to prompt for a file.
-        //
         fileChooser.setSelectedFile(new File(""));
         int returnVal = fileChooser.showOpenDialog(this);
 
@@ -191,18 +287,30 @@ public class TrcAttendance extends JComponent implements WindowListener
         }
     }   //onFileOpen
 
+    /**
+     * This method is called when the File->Edit menu item is clicked. It will pop up the
+     * Editor dialog allowing the user to edit the attendants list.
+     */
     public void onFileEdit()
     {
         editorDialog.open(attendanceLog);
     }   //onFileEdit
 
+    /**
+     * This method is called when the File->Close menu item is clicked. It will close the
+     * log file. If the log file has changes, it will prompt the user to save the changes
+     * before closing the file. The user has the options to save the changes, discard the
+     * changes or cancel the close operation.
+     */
     public void onFileClose()
     {
-        //
-        // File->Close is clicked, save and close the file.
-        //
-        if (saveLogFile(JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
+        if (closeLogFile(JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
         {
+            //
+            // Update the program state by clearing and disabling the meeting and attendance
+            // panes, disabling the Edit/Close menu items and enabling the New/Open menu items.
+            // It also updates the Window title showing no log file opened.
+            //
             meetingPane.clearPanel();
             attendancePane.clearPanel();
             menuBar.setMenuItemsEnabled(true, true, false, false);
@@ -211,11 +319,12 @@ public class TrcAttendance extends JComponent implements WindowListener
         }
     }   //onFileClose
 
+    /**
+     * This method is called when the File->About menu item is clicked. It will pop up the
+     * about message dialog displaying the program name, version number and copyright notice.
+     */
     public void onFileAbout()
     {
-        //
-        // File->About is clicked, display the About message.
-        //
         JOptionPane.showMessageDialog(
                 this,
                 programTitle + " " + programVersion + "\n" + copyRight + "\n",
@@ -223,42 +332,80 @@ public class TrcAttendance extends JComponent implements WindowListener
                 JOptionPane.INFORMATION_MESSAGE);
     }   //onFileAbout
 
+    /**
+     * This method is called when the File->Exit menu item is clicked. It will exit the program.
+     * If the log file has changes, it will prompt the user to save the changes before exiting.
+     * The user has the options to save the changes and exit, discard the changes and exit, or
+     * cancel the exit operation.
+     */
     public void onFileExit()
     {
-        //
-        // File->Exit is clicked, confirm to save file and close the program.
-        //
-        if (saveLogFile(JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
+        if (closeLogFile(JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
         {
             System.exit(0);
         }
     }   //onFileExit
 
+    /**
+     * This method is called when the "Create Meeting" button is clicked. It will create a
+     * new meeting session and update the program state accordingly.
+     */
     public void onCreateMeeting(
             String date, String startTime, String endTime, String place, String meeting)
     {
+        String[] sessionHeader = {date, startTime, endTime, place, meeting};
+        attendanceLog.createSession(sessionHeader);
         //
-        // The "Create Meeting" button is clicked.
+        // Disable New/Open menu items. Enable Edit/Close menu items.
+        // Disable Meeting pane and enable Attendance pane.
         //
-        attendanceLog.createSession(date, startTime, endTime, place, meeting);
-        menuBar.setMenuItemsEnabled(false, false, false, true);
+        menuBar.setMenuItemsEnabled(false, false, true, true);
         meetingPane.setEnabled(false);
         attendancePane.setEnabled(true);
     }   //onCreateMeeting
 
+    /**
+     * This method opens the specified log file. It will also populate the check-in list with
+     * all the attendants and update the program state accordingly.
+     *
+     * @param file specifies the log file to open.
+     */
     private void openLogFile(File file)
     {
         try
         {
+            //
+            // Create the attendance log and populate it with the attendance info from log file.
+            //
             attendanceLog = new AttendanceLog(file, false);
-            attendancePane.updateCheckInList(attendanceLog);
+            //
+            // Populate the check-in list with all the attendants in the log file.
+            //
+            attendancePane.clearLists();
+            attendancePane.updateLists(attendanceLog);
+            //
+            // Update the Window title showing the opened log file.
+            //
             frame.setTitle(file.getName() + " - " + programTitle);
-            meetingPane.setDefaultDateTimePlace();
+            //
+            // Disable New/Open menu items. Enable Edit/Close menu items.
+            //
             menuBar.setMenuItemsEnabled(false, false, true, true);
+            //
+            // Auto fill-in the default meeting date/time/place.
+            //
+            meetingPane.setDefaultDateTimePlace();
+            //
+            // Enable Meeting pane.
+            //
             meetingPane.setEnabled(true);
         }
         catch (FileNotFoundException e)
         {
+            //
+            // The specified log file does not exist.
+            // Enable New/Open menu items. Disable Edit/Close menu items.
+            //
             menuBar.setMenuItemsEnabled(true, true, false, false);
             String msg = String.format("%s does not exist.", file);
             JOptionPane.showMessageDialog(
@@ -266,6 +413,10 @@ public class TrcAttendance extends JComponent implements WindowListener
         }
         catch (ParseException e)
         {
+            //
+            // The specified log file contains invalid data.
+            // Enable New/Open menu items. Disable Edit/Close menu items.
+            //
             menuBar.setMenuItemsEnabled(true, true, false, false);
             String msg = String.format("Invalid data format in %s.", file);
             JOptionPane.showMessageDialog(
@@ -273,18 +424,38 @@ public class TrcAttendance extends JComponent implements WindowListener
         }
     }   //openLogFile
 
-    private int saveLogFile(int option)
+    /**
+     * This method closes the log file. If the log file has changes, it will prompt the user to
+     * save the changes before closing.
+     *
+     * @param option specifies the choice options for the Confirmation dialog. If allowing
+     *               cancel, use JOptionPane.YES_NO_CANCEL_OPTION, otherwise use
+     *               JOptionPane.YES_NO_OPTION.
+     * @return user choice response: JOptionPane.YES_OPTION, JOptionPane.NO_OPTION,
+     *         JOptionPane.CANCEL_OPTION.
+     */
+    private int closeLogFile(int option)
     {
         int reply = JOptionPane.YES_OPTION;
 
+        //
+        // If a log file is opened and there are changes, prompt for the user's confirmation
+        // to save the changes before closing.
+        //
         if (attendanceLog != null && attendanceLog.isFileDirty())
         {
             reply = JOptionPane.showConfirmDialog(
                     this, "Do you want to save the data before exiting?", programTitle, option);
         }
 
+        //
+        // A log file is opened, contains changes and the user has confirmed to save the changes.
+        //
         if (reply == JOptionPane.YES_OPTION && attendanceLog != null && attendanceLog.isFileDirty())
         {
+            //
+            // Check out all remaining attendants and close the log file.
+            //
             attendancePane.checkOutAll();
 
             try
@@ -294,12 +465,16 @@ public class TrcAttendance extends JComponent implements WindowListener
             }
             catch (FileNotFoundException e)
             {
+                //
+                // This should never happen.
+                // We already verified the log file exists when opening it.
+                //
                 throw new RuntimeException("Failed saving file.");
             }
         }
 
         return reply;
-    }   //saveLogFile
+    }   //closeLogFile
 
     //
     // Implements WindowListener interface.
@@ -313,9 +488,15 @@ public class TrcAttendance extends JComponent implements WindowListener
     {
     }   //windowClosed
 
+    /**
+     * This method is called when the "X" Window Close button is clicked. This will exit the
+     * program. If the log file has changes, it will prompt the user to save the changes before
+     * exiting. The user has the options to save the changes and exit or discard the changes
+     * and exit.
+     */
     public void windowClosing(WindowEvent e)
     {
-        saveLogFile(JOptionPane.YES_NO_OPTION);
+        closeLogFile(JOptionPane.YES_NO_OPTION);
     }   //windowClosing
 
     public void windowDeactivated(WindowEvent e)
