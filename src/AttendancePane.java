@@ -256,7 +256,7 @@ public class AttendancePane implements ActionListener
 
     /**
      * This method checks in the selected attendant by moving the attendant from the check-in
-     * list to the check-in list and mark the log file as dirty.
+     * list to the check-out list and mark the log file as dirty.
      *
      * @param attendant
      */
