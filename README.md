@@ -12,7 +12,7 @@ info in an Excel spreadsheet which can sum up the total hours of each student if
 To minimize the amount of typing required when starting a meeting session with the program,
 it is recommended to compile this program to a jar file and put in into the same folder
 where the log data files are stored. On the Windows desktop, it is recommended to create
-a shortcut that contains the following line in the "Target:" field:
+a shortcut that contains the following line in the `Target:` field:
 ```
 java -jar TrcAttendance.jar log=<LogFileName> place=<MeetingPlace>
 ```
@@ -25,12 +25,14 @@ where:
 ```
 The parameters are optional. By specifying them, the program will start with the correct
 log file opened and the meeting place filled in.
-In the "Start in:" field of the shortcut, put in the location of the folder where the jar
+
+In the `Start in:` field of the shortcut, put in the location of the folder where the jar
 file and the log data are stored.
-In the "Run:" field of the shortcut, select "Minimized". This will cause the command console
+
+In the `Run:` field of the shortcut, select `Minimized`. This will cause the command console
 associated with the java program to be minimized.
 
 With the above recommendation, you can create multiple shortcuts on the desktop. For example,
-we have both an FRC and FTC teams. We created two shortcuts "Frc2016Attendance" and
-"Ftc2016Attendance" each has different parameters specifying a different log file and meeting
+we have both an FRC and FTC teams. We created two shortcuts `Frc2016Attendance` and
+`Ftc2016Attendance` each has different parameters specifying a different log file and meeting
 place.
