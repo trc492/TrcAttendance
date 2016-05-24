@@ -14,12 +14,15 @@ it is recommended to compile this program to a jar file and put in into the same
 where the log data files are stored. On the Windows desktop, it is recommended to create
 a shortcut that contains the following line in the "Target:" field:
 
-  java -jar TrcAttendance.jar log=<LogFileName> place=<MeetingPlace><nl/>
-  where:<nl/>
-  <LogFileName>   - The file name of the log data (e.g. Frc2016Attendance.csv). The log data<nl/>
-                    is in the format of an Excel CSV (text file with fields separated by<nl/>
-                    commas).<nl/>
-  <MeetingPlace>  - Specifies the default meeting place.<nl/> 
+  java -jar TrcAttendance.jar log=<LogFileName> place=<MeetingPlace>
+
+  where:
+
+  <LogFileName>   - The file name of the log data (e.g. Frc2016Attendance.csv). The log data
+                    is in the format of an Excel CSV (text file with fields separated by
+                    commas).
+
+  <MeetingPlace>  - Specifies the default meeting place.
 
 The parameters are optional. By specifying them, the program will start with the correct
 log file opened and the meeting place filled in.
