@@ -18,8 +18,8 @@ java -jar TrcAttendance.jar log=<LogFileName> place=<MeetingPlace>
 ```
 where:
 ```
-<LogFileName>   - The file name of the log data (e.g. Frc2016Attendance.csv). The log data is in the format of an Excel CSV
-                  (text file with fields separated by commas).
+<LogFileName>   - The file name of the log data (e.g. Frc2016Attendance.csv). The log data is in the format
+                  of an Excel CSV (text file with fields separated by commas).
 
 <MeetingPlace>  - Specifies the default meeting place.
 ```
