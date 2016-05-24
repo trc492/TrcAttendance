@@ -1,5 +1,5 @@
 # TrcAttendance
-Attendance Logger - Tool to log students' participation in meetings.
+###Attendance Logger - Tool to log students' participation in meetings.
 
 In our team, each student is required to participate a minimum number of hours of meetings
 during the build season in order to participate in competitions. At our meeting place, we
@@ -13,17 +13,16 @@ To minimize the amount of typing required when starting a meeting session with t
 it is recommended to compile this program to a jar file and put in into the same folder
 where the log data files are stored. On the Windows desktop, it is recommended to create
 a shortcut that contains the following line in the "Target:" field:
+```
+java -jar TrcAttendance.jar log=<LogFileName> place=<MeetingPlace>
+```
+where:
+```
+<LogFileName>   - The file name of the log data (e.g. Frc2016Attendance.csv). The log data is in the format of an Excel CSV
+                  (text file with fields separated by commas).
 
-  java -jar TrcAttendance.jar log=<LogFileName> place=<MeetingPlace>
-
-  where:
-
-  <LogFileName>   - The file name of the log data (e.g. Frc2016Attendance.csv). The log data
-                    is in the format of an Excel CSV (text file with fields separated by
-                    commas).
-
-  <MeetingPlace>  - Specifies the default meeting place.
-
+<MeetingPlace>  - Specifies the default meeting place.
+```
 The parameters are optional. By specifying them, the program will start with the correct
 log file opened and the meeting place filled in.
 In the "Start in:" field of the shortcut, put in the location of the folder where the jar
