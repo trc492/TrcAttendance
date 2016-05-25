@@ -10,7 +10,7 @@ us to keep track of the minutes they have attended meetings. The program keeps t
 info in an Excel spreadsheet which can sum up the total hours of each student if needed.
 
 To minimize the amount of typing required when starting a meeting session with the program,
-it is recommended to compile this program to a jar file and put in into the same folder
+it is recommended to compile this program to a jar file and put it into the same folder
 where the log data files are stored. On the Windows desktop, it is recommended to create
 a shortcut that contains the following line in the `Target:` field:
 ```
