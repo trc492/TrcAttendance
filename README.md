@@ -4,8 +4,8 @@
 In our team, each student is required to participate a minimum number of hours of meetings
 during the build season in order to participate in competitions. At our meeting place, we
 put out a laptop with touch screen at the door running this program. Each student when walked
-in will select their name on the check-in list and click the check-in button. When leaving,
-they will select their name in the check-out list and click the check-out button. This allows
+in will select their names on the check-in list and click the check-in button. When leaving,
+they will select their names in the check-out list and click the check-out button. This allows
 us to keep track of the minutes they have attended meetings. The program keeps track of this
 info in an Excel spreadsheet which can sum up the total hours of each student if needed.
 
