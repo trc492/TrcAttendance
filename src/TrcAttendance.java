@@ -31,7 +31,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 /**
  * This is the main class of the Attendance Logger program. It contains the main method.
  * To minimize the amount of typing required when starting a meeting session with the program,
- * it is recommended to compile this program to a jar file and put in into the same folder
+ * it is recommended to compile this program to a jar file and put it into the same folder
  * where the log data files are stored. On the Windows desktop, it is recommended to create
  * a shortcut that contains the following line in the "Target:" field:
  *  java -jar TrcAttendance.jar log=<LogFileName> place=<MeetingPlace>
