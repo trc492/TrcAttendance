@@ -43,7 +43,7 @@ public class Session
         {
             sessionInfo[i] = info[i];
         }
-    }   //Meeting
+    }   //Session
 
     /**
      * This method is called to get a string representation of the meeting info. It concatenates
@@ -72,4 +72,4 @@ public class Session
         return headerString;
     }   //getHeaderString
 
-}   //class Meeting
+}   //class Session

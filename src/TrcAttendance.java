@@ -24,6 +24,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.text.*;
+import java.util.Scanner;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -56,9 +57,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class TrcAttendance extends JComponent implements WindowListener
 {
     private static final long serialVersionUID = 1L;
-    private static final String programTitle = "Trc Attendance Logger";
-    private static final String copyRight = "Copyright (c) Titan Robotics Club";
-    private static final String programVersion = "[version 0.9.0]";
+    private static final String PROGRAM_TITLE = "Trc Attendance Logger";
+    private static final String COPYRIGHT_MSG = "Copyright (c) Titan Robotics Club";
+    private static final String PROGRAM_VERSION = "[version 0.9.0]";
+    private static final String SESSION_LOG_FILE_NAME = "SessionLog.txt";
 
     public static String logFileName = null;
     public static String placeName = "";
@@ -92,7 +94,7 @@ public class TrcAttendance extends JComponent implements WindowListener
                     @Override
                     public void run()
                     {
-                        JFrame frame = new JFrame(programTitle);
+                        JFrame frame = new JFrame(PROGRAM_TITLE);
                         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
                         frame.setSize(800, 500);
@@ -172,7 +174,7 @@ public class TrcAttendance extends JComponent implements WindowListener
         menuBar = new MenuBar(this);
         meetingPane = new MeetingPane(this);
         attendancePane = new AttendancePane(this);
-        editorDialog = new EditorDialog(this, "Edit Attendants List - " + programTitle, true);
+        editorDialog = new EditorDialog(this, "Edit Attendants List - " + PROGRAM_TITLE, true);
 
         //
         // Create and initialize a global FileChooser object for "New" and "Open".
@@ -218,7 +220,7 @@ public class TrcAttendance extends JComponent implements WindowListener
                 returnVal = JOptionPane.showConfirmDialog(
                         this,
                         file.getPath() + " already exists, overwrite?",
-                        programTitle,
+                        PROGRAM_TITLE,
                         JOptionPane.OK_CANCEL_OPTION);
             }
 
@@ -249,7 +251,7 @@ public class TrcAttendance extends JComponent implements WindowListener
                 //
                 // Update the Window title showing the new log file.
                 //
-                frame.setTitle(file.getName() + " - " + programTitle);
+                frame.setTitle(file.getName() + " - " + PROGRAM_TITLE);
                 //
                 // Open the Editor dialog as if the user has clicked File->Edit allowing
                 // the user to enter the names of the new attendants.
@@ -315,7 +317,7 @@ public class TrcAttendance extends JComponent implements WindowListener
             attendancePane.clearPanel();
             menuBar.setMenuItemsEnabled(true, true, false, false);
             attendanceLog = null;
-            frame.setTitle(programTitle);
+            frame.setTitle(PROGRAM_TITLE);
         }
     }   //onFileClose
 
@@ -327,8 +329,8 @@ public class TrcAttendance extends JComponent implements WindowListener
     {
         JOptionPane.showMessageDialog(
                 this,
-                programTitle + " " + programVersion + "\n" + copyRight + "\n",
-                programTitle,
+                PROGRAM_TITLE + " " + PROGRAM_VERSION + "\n" + COPYRIGHT_MSG + "\n",
+                PROGRAM_TITLE,
                 JOptionPane.INFORMATION_MESSAGE);
     }   //onFileAbout
 
@@ -386,19 +388,30 @@ public class TrcAttendance extends JComponent implements WindowListener
             //
             // Update the Window title showing the opened log file.
             //
-            frame.setTitle(file.getName() + " - " + programTitle);
+            frame.setTitle(file.getName() + " - " + PROGRAM_TITLE);
             //
             // Disable New/Open menu items. Enable Edit/Close menu items.
             //
             menuBar.setMenuItemsEnabled(false, false, true, true);
+
             //
-            // Auto fill-in the default meeting date/time/place.
+            // Check for existing session log. If found, recover the existing session.
             //
-            meetingPane.setDefaultDateTimePlace();
-            //
-            // Enable Meeting pane.
-            //
-            meetingPane.setEnabled(true);
+            if (readExistingSessionLog(SESSION_LOG_FILE_NAME))
+            {
+                meetingPane.setEnabled(false);
+            }
+            else
+            {
+                //
+                // Auto fill-in the default meeting date/time/place.
+                //
+                meetingPane.setDefaultDateTimePlace();
+                //
+                // Enable Meeting pane.
+                //
+                meetingPane.setEnabled(true);
+            }
         }
         catch (FileNotFoundException e)
         {
@@ -409,7 +422,7 @@ public class TrcAttendance extends JComponent implements WindowListener
             menuBar.setMenuItemsEnabled(true, true, false, false);
             String msg = String.format("%s does not exist.", file);
             JOptionPane.showMessageDialog(
-                    this, msg, programTitle, JOptionPane.ERROR_MESSAGE);
+                    this, msg, PROGRAM_TITLE, JOptionPane.ERROR_MESSAGE);
         }
         catch (ParseException e)
         {
@@ -420,7 +433,7 @@ public class TrcAttendance extends JComponent implements WindowListener
             menuBar.setMenuItemsEnabled(true, true, false, false);
             String msg = String.format("Invalid data format in %s.", file);
             JOptionPane.showMessageDialog(
-                    this, msg, programTitle, JOptionPane.ERROR_MESSAGE);
+                    this, msg, PROGRAM_TITLE, JOptionPane.ERROR_MESSAGE);
         }
     }   //openLogFile
 
@@ -445,7 +458,7 @@ public class TrcAttendance extends JComponent implements WindowListener
         if (attendanceLog != null && attendanceLog.isFileDirty())
         {
             reply = JOptionPane.showConfirmDialog(
-                    this, "Do you want to save the data before exiting?", programTitle, option);
+                    this, "Do you want to save the data before exiting?", PROGRAM_TITLE, option);
         }
 
         //
@@ -473,17 +486,104 @@ public class TrcAttendance extends JComponent implements WindowListener
             }
         }
 
+        //
+        // We are updating and closing the attendance log, so we can now delete the session log if there is one.
+        //
+        File sessionLog = new File(SESSION_LOG_FILE_NAME);
+        if (sessionLog.exists())
+        {
+            sessionLog.delete();
+        }
+
         return reply;
     }   //closeLogFile
+
+    /**
+     * This method reads the session log file if there is one. It will recreate the meeting from the session log.
+     *
+     * @param sessionLogName specifies the session log file name.
+     * @return true if there is a session log file, false otherwise.
+     * @throws FileNotFoundException
+     */
+    private boolean readExistingSessionLog(String sessionLogName) throws FileNotFoundException
+    {
+        boolean success = false;
+
+        File sessionLogFile = new File(sessionLogName);
+        if (sessionLogFile.exists())
+        {
+            Scanner sessionLog = new Scanner(sessionLogFile);
+            String[] sessionInfo = sessionLog.nextLine().trim().split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+
+            if (sessionInfo.length != 5)
+            {
+                sessionLog.close();
+                throw new IllegalArgumentException("Invalid meeting info.");
+            }
+
+            onCreateMeeting(sessionInfo[0], sessionInfo[1], sessionInfo[2], sessionInfo[3], sessionInfo[4]);
+            meetingPane.setMeetingInfo(sessionInfo[0], sessionInfo[1], sessionInfo[2], sessionInfo[3], sessionInfo[4]);
+            while (sessionLog.hasNextLine())
+            {
+                String[] transaction = sessionLog.nextLine().trim().split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                Attendant attendant = attendanceLog.findAttendant(
+                    transaction[1].substring(1, transaction[1].length() - 1));
+
+                if (transaction[0].equals("CheckIn"))
+                {
+                    attendancePane.checkInAttendant(attendant, Long.parseLong(transaction[2]), false);
+                }
+                else if (transaction[0].equals("CheckOut"))
+                {
+                    attendancePane.checkOutAttendant(attendant, Long.parseLong(transaction[2]), false);
+                }
+            }
+            sessionLog.close();
+            success = true;
+        }
+
+        return success;
+    }   //readExistingSessionLog
+
+    /**
+     * This method writes a transaction entry to the session log.
+     *
+     * @param checkOut specifies true if it is a check-out transaction, false if it is a check-in transaction.
+     * @param attendant specifies the attendant.
+     * @param timestamp specifies the transaction time.
+     */
+    public void logTransaction(boolean checkOut, Attendant attendant, long timestamp)
+    {
+        File sessionFile = new File(SESSION_LOG_FILE_NAME);
+        boolean exist = sessionFile.exists();
+
+        try
+        {
+            PrintStream sessionLog = new PrintStream(new FileOutputStream(sessionFile, exist));
+
+            if (!exist)
+            {
+                sessionLog.println(attendanceLog.getCurrentSession());
+            }
+            sessionLog.printf("%s,\"%s\",%d\n", checkOut? "CheckOut": "CheckIn", attendant, timestamp);
+            sessionLog.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+    }   //logTransaction
 
     //
     // Implements WindowListener interface.
     //
 
+    @Override
     public void windowActivated(WindowEvent e)
     {
     }   //windowActivated
 
+    @Override
     public void windowClosed(WindowEvent e)
     {
     }   //windowClosed
@@ -494,23 +594,28 @@ public class TrcAttendance extends JComponent implements WindowListener
      * exiting. The user has the options to save the changes and exit or discard the changes
      * and exit.
      */
+    @Override
     public void windowClosing(WindowEvent e)
     {
         closeLogFile(JOptionPane.YES_NO_OPTION);
     }   //windowClosing
 
+    @Override
     public void windowDeactivated(WindowEvent e)
     {
     }   //windowDeactivated
 
+    @Override
     public void windowDeiconified(WindowEvent e)
     {
     }   //windowDeiconified
 
+    @Override
     public void windowIconified(WindowEvent e)
     {
     }   //windowIconified
 
+    @Override
     public void windowOpened(WindowEvent e)
     {
     }   //windowOpened

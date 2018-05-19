@@ -135,6 +135,7 @@ public class EditorDialog extends JDialog implements ActionListener
      *
      * @param event specifies the event that caused this callback.
      */
+    @Override
     public void actionPerformed(ActionEvent event)
     {
         Object source = event.getSource();

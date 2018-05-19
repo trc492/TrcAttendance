@@ -55,8 +55,7 @@ public class AttendanceLog
             // ignoring commas inside quotes.
             //
             Scanner input = new Scanner(file);
-            String[] fields = input.nextLine().trim().split(
-                    ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+            String[] fields = input.nextLine().trim().split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
             int numFields = fields.length;
 
             //
@@ -76,8 +75,8 @@ public class AttendanceLog
             else
             {
                 input.close();
-                throw new ParseException(
-                        "Data file must have at least 6 fields", fields.length);
+                throw new IllegalArgumentException(
+                        String.format("Data file must have at least 6 fields (numFields=%d)", fields.length));
             }
 
             //
@@ -137,6 +136,16 @@ public class AttendanceLog
             throw new RuntimeException("A meeting has already been created.");
         }
     }   //createSession
+
+    /**
+     * This method returns the current meeting session object.
+     *
+     * @return current meeting session.
+     */
+    public Session getCurrentSession()
+    {
+        return currentSession;
+    }   //getCurrentSession
 
     /**
      * This method returns the total number of attendants.
@@ -292,7 +301,7 @@ public class AttendanceLog
      * @param name specifies the name of the attendant to look for.
      * @return attendant with the specified name.
      */
-    private Attendant findAttendant(String name)
+    public Attendant findAttendant(String name)
     {
         for (int i = 0; i < attendantsList.size(); i++)
         {

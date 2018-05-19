@@ -306,6 +306,52 @@ public class MeetingPane implements ActionListener
     }   //setDefaultDateTimePlace
 
     /**
+     * This method updates the UI elements with the given meeting info.
+     *
+     * @param dateText specifies the meeting date.
+     * @param startTimeText specifies the meeting start time.
+     * @param endTimeText specifies the meeting end time.
+     * @param placeText specifies the meeting place.
+     * @param meetingTypes specifies the meeting types.
+     */
+    public void setMeetingInfo(
+        String dateText, String startTimeText, String endTimeText, String placeText, String meetingTypes)
+    {
+        date.setText(dateText);
+
+        String[] startTime = startTimeText.split(":");
+        getSpinnerTextField(startTimeHour).setValue(Integer.parseInt(startTime[0]));
+        getSpinnerTextField(startTimeMinute).setValue(Integer.parseInt(startTime[1]));
+
+        String[] endTime = endTimeText.split(":");
+        getSpinnerTextField(endTimeHour).setValue(Integer.parseInt(endTime[0]));
+        getSpinnerTextField(endTimeMinute).setValue(Integer.parseInt(endTime[1]));
+
+        place.setText(placeText);
+
+        String[] types = meetingTypes.split("/");
+        for (int i = 0; i < types.length; i++)
+        {
+            if (types[i].equals("Mechanical"))
+            {
+                mechanicalCheckBox.setSelected(true);
+            }
+            else if (types[i].equals("Programming"))
+            {
+                programmingCheckBox.setSelected(true);
+            }
+            else if (types[i].equals("Drive"))
+            {
+                driveCheckBox.setSelected(true);
+            }
+            else
+            {
+                otherCheckBox.setSelected(true);
+            }
+        }
+    }   //setMeetingInfo
+
+    /**
      * This method returns the TextField object of the Spinner control.
      *
      * @param spinner specifies the Spinner control for retrieving its TextField object.
@@ -333,6 +379,7 @@ public class MeetingPane implements ActionListener
      *
      * @param event specifies the event that caused this callback.
      */
+    @Override
     public void actionPerformed(ActionEvent event)
     {
         Object source = event.getSource();

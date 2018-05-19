@@ -250,21 +250,28 @@ public class AttendancePane implements ActionListener
     {
         while (checkOutList.getItemCount() > 0)
         {
-            checkOutAttendant(checkOutList.getItemAt(0));
+            checkOutAttendant(checkOutList.getItemAt(0), System.currentTimeMillis(), true);
         }
     }   //checkOutAll
 
     /**
      * This method checks in the selected attendant by moving the attendant from the check-in
-     * list to the check-out list and mark the log file as dirty.
+     * list to the check-out list and mark the log file as dirty. If sessionLog is true, it also
+     * writes a transaction entry to the session log.
      *
-     * @param attendant
+     * @param attendant specifies the attendant to be checked in.
+     * @param timestamp specifies the check-in time.
+     * @param logTransaction specifies true to log a transaction entry in the session log.
      */
-    private void checkInAttendant(Attendant attendant)
+    public void checkInAttendant(Attendant attendant, long timestamp, boolean logTransaction)
     {
         if (attendant != null)
         {
-            attendant.checkIn();
+            if (logTransaction)
+            {
+                parent.logTransaction(false, attendant, timestamp);
+            }
+            attendant.checkIn(timestamp);
             checkInList.removeItem(attendant);
             checkOutList.addItem(attendant);
             parent.attendanceLog.setFileDirty();
@@ -273,15 +280,22 @@ public class AttendancePane implements ActionListener
 
     /**
      * This method checks out the selected attendant by moving the attendant from the check-out
-     * list back to the check-in list and mark the log file as dirty.
+     * list back to the check-in list and mark the log file as dirty. If sessionLog is true, it also
+     * writes a transaction entry to the session log.
      *
-     * @param attendant
+     * @param attendant specifies the attendant to be checked out.
+     * @param timestamp specifies the check-out time.
+     * @param logTransaction specifies true to log a transaction entry in the session log.
      */
-    private void checkOutAttendant(Attendant attendant)
+    public void checkOutAttendant(Attendant attendant, long timestamp, boolean logTransaction)
     {
         if (attendant != null)
         {
-            attendant.checkOut();
+            if (logTransaction)
+            {
+                parent.logTransaction(true, attendant, timestamp);
+            }
+            attendant.checkOut(timestamp);
             checkOutList.removeItem(attendant);
             checkInList.addItem(attendant);
             parent.attendanceLog.setFileDirty();
@@ -303,11 +317,11 @@ public class AttendancePane implements ActionListener
 
         if (source == checkInButton)
         {
-            checkInAttendant((Attendant)checkInList.getSelectedItem());
+            checkInAttendant((Attendant)checkInList.getSelectedItem(), System.currentTimeMillis(), true);
         }
         else if (source == checkOutButton)
         {
-            checkOutAttendant((Attendant)checkOutList.getSelectedItem());
+            checkOutAttendant((Attendant)checkOutList.getSelectedItem(), System.currentTimeMillis(), true);
         }
     }   //actionPerformed
 

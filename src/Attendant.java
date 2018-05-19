@@ -91,12 +91,14 @@ public class Attendant
     /**
      * This method is called to check-in the attendant. It records the check-in time for the
      * current meeting session.
+     *
+     * @param timestamp specifies the check-in time.
      */
-    public void checkIn()
+    public void checkIn(long timestamp)
     {
         if (checkInTime == 0)
         {
-            checkInTime = System.currentTimeMillis();
+            checkInTime = timestamp;
         }
         else
         {
@@ -107,12 +109,14 @@ public class Attendant
     /**
      * This method is called to check-out the attendant. It records the attendance duration
      * for the current meeting session.
+     *
+     * @param timestamp specifies the check-out time.
      */
-    public void checkOut()
+    public void checkOut(long timestamp)
     {
         if (checkInTime != 0)
         {
-            currentSessionTime += System.currentTimeMillis() - checkInTime;
+            currentSessionTime += timestamp - checkInTime;
             checkInTime = 0;
         }
         else
