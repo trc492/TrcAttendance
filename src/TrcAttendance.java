@@ -59,7 +59,7 @@ public class TrcAttendance extends JComponent implements WindowListener
     private static final long serialVersionUID = 1L;
     private static final String PROGRAM_TITLE = "Trc Attendance Logger";
     private static final String COPYRIGHT_MSG = "Copyright (c) Titan Robotics Club";
-    private static final String PROGRAM_VERSION = "[version 0.9.0]";
+    private static final String PROGRAM_VERSION = "[version 1.0.0]";
     private static final String SESSION_LOG_FILE_NAME = "SessionLog.txt";
 
     public static String logFileName = null;
