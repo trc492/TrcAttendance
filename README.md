@@ -1,5 +1,5 @@
 # TrcAttendance
-###Attendance Logger - Tool to log students' participation in meetings.
+### Attendance Logger - Tool to log students' participation in meetings.
 
 In our team, each student is required to participate a minimum number of hours of meetings
 during the build season in order to participate in competitions. At our meeting place, we
