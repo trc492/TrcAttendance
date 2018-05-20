@@ -26,6 +26,9 @@ import java.util.Comparator;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
+import attendance.AttendanceLog;
+import attendance.Attendant;
+
 /**
  * This class constructs the Attendance pane. It contains a check-in list and a check-out list.
  * When the log file is first opened, all attendants are put into the check-in list. When an

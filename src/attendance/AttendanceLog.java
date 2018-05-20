@@ -1,3 +1,4 @@
+package attendance;
 /*
  * Copyright (c) 2016 Titan Robotics Club (http://www.titanrobotics.net)
  *
@@ -21,7 +22,6 @@
  */
 
 import java.io.*;
-import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -42,9 +42,9 @@ public class AttendanceLog
      * @param file specifies the log file.
      * @param newFile specifies true if the log file is new, false otherwise.
      * @throws FileNotFoundException if newFile is false but the specified file does not exist.
-     * @throws ParseException if the log file contains invalid data.
+     * @throws IllegalArgumentException if the log file contains invalid data.
      */
-    public AttendanceLog(File file, boolean newFile) throws FileNotFoundException, ParseException
+    public AttendanceLog(File file, boolean newFile) throws FileNotFoundException, IllegalArgumentException
     {
         logFile = file;
 
@@ -110,8 +110,8 @@ public class AttendanceLog
                 else
                 {
                     input.close();
-                    throw new ParseException(
-                            "Invalid data file (incorrect number of fields.", fields.length);
+                    throw new IllegalArgumentException(
+                            String.format("Invalid data file (incorrect number of fields - %d).", fields.length));
                 }
             }
 

@@ -25,6 +25,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import attendance.AttendanceLog;
+import attendance.Attendant;
+
 /**
  * This class constructs an Editor dialog and populates it with the list of attendants allowing
  * the user to edit the list, adding or removing attendants. The Editor dialog contains an

@@ -23,11 +23,13 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.text.*;
 import java.util.Scanner;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import attendance.AttendanceLog;
+import attendance.Attendant;
 
 /**
  * This is the main class of the Attendance Logger program. It contains the main method.
@@ -424,7 +426,7 @@ public class TrcAttendance extends JComponent implements WindowListener
             JOptionPane.showMessageDialog(
                     this, msg, PROGRAM_TITLE, JOptionPane.ERROR_MESSAGE);
         }
-        catch (ParseException e)
+        catch (IllegalArgumentException e)
         {
             //
             // The specified log file contains invalid data.

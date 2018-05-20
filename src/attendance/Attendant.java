@@ -1,3 +1,4 @@
+package attendance;
 /*
  * Titan Robotics Attendance Logger
  * Copyright (c) 2016 Titan Robotics Club (http://www.titanrobotics.net)
