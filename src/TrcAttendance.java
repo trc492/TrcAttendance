@@ -61,7 +61,7 @@ public class TrcAttendance extends JComponent implements WindowListener
     private static final long serialVersionUID = 1L;
     private static final String PROGRAM_TITLE = "Trc Attendance Logger";
     private static final String COPYRIGHT_MSG = "Copyright (c) Titan Robotics Club";
-    private static final String PROGRAM_VERSION = "[version 1.0.0]";
+    private static final String PROGRAM_VERSION = "[version 1.1.0]";
     private static final String SESSION_LOG_FILE_NAME = "SessionLog.txt";
 
     public static String logFileName = null;
@@ -97,7 +97,7 @@ public class TrcAttendance extends JComponent implements WindowListener
                     public void run()
                     {
                         JFrame frame = new JFrame(PROGRAM_TITLE);
-                        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
                         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
                         frame.setSize(800, 500);
                         frame.setResizable(false);
@@ -303,12 +303,12 @@ public class TrcAttendance extends JComponent implements WindowListener
     /**
      * This method is called when the File->Close menu item is clicked. It will close the
      * log file. If the log file has changes, it will prompt the user to save the changes
-     * before closing the file. The user has the options to save the changes, discard the
-     * changes or cancel the close operation.
+     * before closing the file. The user has the options to save the changes or cancel the
+     * close operation. It doesn't offer "No" to avoid discarding data accidentally.
      */
     public void onFileClose()
     {
-        if (closeLogFile(JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
+        if (closeLogFile(JOptionPane.OK_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
         {
             //
             // Update the program state by clearing and disabling the meeting and attendance
@@ -344,7 +344,7 @@ public class TrcAttendance extends JComponent implements WindowListener
      */
     public void onFileExit()
     {
-        if (closeLogFile(JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
+        if (closeLogFile(JOptionPane.OK_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
         {
             System.exit(0);
         }
@@ -451,7 +451,7 @@ public class TrcAttendance extends JComponent implements WindowListener
      */
     private int closeLogFile(int option)
     {
-        int reply = JOptionPane.YES_OPTION;
+        int reply = JOptionPane.OK_OPTION;
 
         //
         // If a log file is opened and there are changes, prompt for the user's confirmation
@@ -466,7 +466,7 @@ public class TrcAttendance extends JComponent implements WindowListener
         //
         // A log file is opened, contains changes and the user has confirmed to save the changes.
         //
-        if (reply == JOptionPane.YES_OPTION && attendanceLog != null && attendanceLog.isFileDirty())
+        if (reply == JOptionPane.OK_OPTION && attendanceLog != null && attendanceLog.isFileDirty())
         {
             //
             // Check out all remaining attendants and close the log file.
@@ -491,10 +491,13 @@ public class TrcAttendance extends JComponent implements WindowListener
         //
         // We are updating and closing the attendance log, so we can now delete the session log if there is one.
         //
-        File sessionLog = new File(SESSION_LOG_FILE_NAME);
-        if (sessionLog.exists())
+        if (reply == JOptionPane.OK_OPTION)
         {
-            sessionLog.delete();
+            File sessionLog = new File(SESSION_LOG_FILE_NAME);
+            if (sessionLog.exists())
+            {
+                sessionLog.delete();
+            }
         }
 
         return reply;
@@ -593,13 +596,16 @@ public class TrcAttendance extends JComponent implements WindowListener
     /**
      * This method is called when the "X" Window Close button is clicked. This will exit the
      * program. If the log file has changes, it will prompt the user to save the changes before
-     * exiting. The user has the options to save the changes and exit or discard the changes
-     * and exit.
+     * exiting. The user has the options to save the changes or cancel out of it. It doesn't offer
+     * not saving data to prevent accidental data loss.
      */
     @Override
     public void windowClosing(WindowEvent e)
     {
-        closeLogFile(JOptionPane.YES_NO_OPTION);
+        if (closeLogFile(JOptionPane.OK_CANCEL_OPTION) != JOptionPane.CANCEL_OPTION)
+        {
+            System.exit(0);
+        }
     }   //windowClosing
 
     @Override
